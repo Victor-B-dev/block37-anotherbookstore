@@ -1,11 +1,13 @@
+require('dotenv').config()
 const client = require ('./client.cjs');
+const { createUser } = require('./users.cjs')
 
 const dropTables = async() => {
   try {
     await client.query(`
+      DROP TABLE IF EXISTS reviews;
       DROP TABLE IF EXISTS users;
       DROP TABLE IF EXISTS books;
-      DROP TABLE IF EXISTS reviews;
     `);
   } catch(err) {
     console.log(err);
@@ -18,7 +20,7 @@ const createTables = async() => {
       CREATE TABLE users (
         id SERIAL PRIMARY KEY,
         username VARCHAR(40) NOT NULL,
-        password VARCHAR(50) NOT NULL,
+        password VARCHAR(100) NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL
       );
 
@@ -26,7 +28,7 @@ const createTables = async() => {
         id SERIAL PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
         author VARCHAR(255) NOT NULL,
-        description TEXT NOT NULL,
+        description TEXT NOT NULL
       );
 
       CREATE TABLE reviews (
@@ -39,8 +41,6 @@ const createTables = async() => {
         FOREIGN KEY (bookid) REFERENCES books(id),
         UNIQUE(userid, bookid)
       );
-
-      
     `);
   } catch(err) {
     console.log(err);
@@ -56,6 +56,11 @@ const init = async () => {
   
   await createTables();
   console.log(`TABLES CREATED!`);
+
+  await createUser('victor', 'purplemonkey', 'victor@testing.com');
+  await createUser('kyle', 'bigdeer', 'kyle@testing.com');
+  await createUser('richard', 'eggplant', 'richard@testing.com');
+  console.log(`CREATED THREE USERS`);
 
   await client.end();
   console.log('DISONNECTED');
